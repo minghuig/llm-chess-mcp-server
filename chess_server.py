@@ -63,6 +63,7 @@ def format_board_state(board: chess.Board) -> str:
     turn = "White" if board.turn == chess.WHITE else "Black"
     output.append(f"Turn: {turn}")
     output.append(f"Status: {get_game_status(board)}")
+    output.append(f"FEN: {board.fen()}")
 
     return "\n".join(output)
 
@@ -108,7 +109,7 @@ async def list_tools() -> list[Tool]:
             description=(
                 "Get the current state of the chess game. Returns the board position with "
                 "Unicode chess pieces and rank/file labels, captured pieces for each side, "
-                "last move played, whose turn it is, and game status."
+                "last move played, whose turn it is, game status, and FEN notation."
             ),
             inputSchema={
                 "type": "object",
