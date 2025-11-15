@@ -11,6 +11,8 @@ from mcp.server.stdio import stdio_server
 # Global game state (single game in memory)
 current_game: chess.Board = chess.Board()
 last_move_san: str = ""
+captured_white: list[str] = []  # White pieces captured by Black
+captured_black: list[str] = []  # Black pieces captured by White
 
 
 def get_game_status(board: chess.Board) -> str:
@@ -39,6 +41,9 @@ def format_board_state(board: chess.Board) -> str:
     # ASCII board representation with Unicode chess pieces and labels
     output.append("Current Board:")
 
+    # Show captured white pieces (captured by Black) at the top
+    output.append(" ".join(captured_white))
+
     # Get the unicode board and add rank labels on the left
     board_lines = board.unicode().split('\n')
     for i, line in enumerate(board_lines):
@@ -46,7 +51,9 @@ def format_board_state(board: chess.Board) -> str:
         output.append(f"{rank} {line}")
 
     output.append("  a b c d e f g h")
-    output.append("")
+
+    # Show captured black pieces (captured by White) at the bottom
+    output.append(" ".join(captured_black))
 
     # Show last move if available
     if last_move_san:
@@ -56,7 +63,6 @@ def format_board_state(board: chess.Board) -> str:
     turn = "White" if board.turn == chess.WHITE else "Black"
     output.append(f"Turn: {turn}")
     output.append(f"Status: {get_game_status(board)}")
-    output.append(f"Moves played: {board.fullmove_number - 1}")
 
     return "\n".join(output)
 
@@ -101,8 +107,8 @@ async def list_tools() -> list[Tool]:
             name="get_game_state",
             description=(
                 "Get the current state of the chess game. Returns the board position with "
-                "Unicode chess pieces and rank/file labels, last move played, whose turn it is, "
-                "game status, and number of moves played."
+                "Unicode chess pieces and rank/file labels, captured pieces for each side, "
+                "last move played, whose turn it is, and game status."
             ),
             inputSchema={
                 "type": "object",
@@ -116,11 +122,13 @@ async def list_tools() -> list[Tool]:
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     """Handle tool calls for chess operations."""
-    global current_game, last_move_san
+    global current_game, last_move_san, captured_white, captured_black
 
     if name == "new_game":
         current_game = chess.Board()
         last_move_san = ""
+        captured_white = []
+        captured_black = []
         return [
             TextContent(
                 type="text",
@@ -164,6 +172,17 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
 
         # Store the move in SAN notation before applying it
         last_move_san = current_game.san(move)
+
+        # Check if this move captures a piece
+        captured_piece = current_game.piece_at(move.to_square)
+        if captured_piece:
+            # Get the unicode symbol for the captured piece
+            piece_symbol = captured_piece.unicode_symbol()
+            # Add to appropriate captured list based on piece color
+            if captured_piece.color == chess.WHITE:
+                captured_white.append(piece_symbol)
+            else:
+                captured_black.append(piece_symbol)
 
         # Make the move
         current_game.push(move)

@@ -6,7 +6,7 @@ A Model Context Protocol (MCP) server that enables LLMs to play chess games. Bui
 
 - **new_game**: Start a fresh chess game
 - **make_move**: Make a move with automatic validation (supports UCI and SAN notation)
-- **get_game_state**: View the current board with rank/file labels, last move, turn, and game status
+- **get_game_state**: View the current board with rank/file labels, captured pieces, last move, turn, and game status
 
 ## Installation
 
@@ -92,10 +92,10 @@ Returns the current state of the game.
 
 **Returns**:
 - Unicode chess piece visualization with rank/file labels
+- Captured pieces for each side (displayed above and below the board)
 - Last move played (in SAN notation)
 - Current turn (White/Black)
 - Game status (Ongoing/Check/Checkmate/Draw)
-- Number of moves played
 
 ## Implementation Details
 
