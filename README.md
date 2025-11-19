@@ -1,6 +1,6 @@
 # Chess MCP Server
 
-A Model Context Protocol (MCP) server that enables LLMs to play chess games. Built with Python using the `python-chess` library for chess logic and move validation.
+A Model Context Protocol (MCP) server that lets you play chess with LLMs. Fair warning: they are not very good at it (can fumble their way through full games but are fairly trivial for an average human player to beat), and this server does not optimize for their chess performance. Built with Python using the `python-chess` library for chess logic and move validation.
 
 ## Features
 
